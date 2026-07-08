@@ -82,21 +82,8 @@
         .foso-beetle-1 { animation: beetle-climb 12s linear infinite; }
         .foso-beetle-2 { animation: beetle-climb 8s linear infinite 2s; }
         .foso-beetle-3 { animation: beetle-climb 16s linear infinite 5s; }
-		
-		#chat-container {
-            position: fixed; bottom: 20px; right: 20px; width: 320px; height: 400px;
-            background: #fff; border: 2px solid #333; border-radius: 10px;
-            display: flex; flex-direction: column; font-family: sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        #chat-header { background: #333; color: #fff; padding: 10px; font-weight: bold; border-top-left-radius: 8px; border-top-right-radius: 8px; }
-        #chat-messages { flex: 1; padding: 10px; overflow-y: auto; font-size: 14px; background: #f9f9f9; }
-        #chat-input-area { display: flex; border-top: 1px solid #ccc; }
-        #chat-input { flex: 1; padding: 10px; border: none; border-bottom-left-radius: 8px; }
-        #chat-btn { background: #ff9900; border: none; padding: 10px; cursor: pointer; font-weight: bold; border-bottom-right-radius: 8px; }
-        .msg { margin-bottom: 8px; padding: 6px 10px; border-radius: 5px; max-width: 80%; }
-        .alumno { background: #e2f0cb; align-self: flex-end; margin-left: auto; }
-        .profesor { background: #dee2e6; align-self: flex-start; }
-		
+	
+	
     </style>
 </head>
 <body class="bg-egyptian-dark text-stone-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans selection:bg-egyptian-gold selection:text-egyptian-dark relative overflow-x-hidden">
@@ -792,75 +779,215 @@
 		
 		
     </script>
-	
-	<!-- Interfaz del Profesor IA -->
-    <div id="chat-container">
-        <div id="chat-header">👨‍🏫 Profesor IA (Pistas)</div>
-        <div id="chat-messages">
-            <div class="msg profesor">¡Hola! Soy tu profesor guía. ¿En qué puedo ayudarte con el acertijo? (No te daré la respuesta directa, ¡pero sí pistas!)</div>
-        </div>
-        <div id="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Pregúntale al profesor...">
-            <button id="chat-btn" onclick="preguntarAlProfesor()">Enviar</button>
-        </div>
+	<!-- ========================================================================= -->
+<!-- COMIENZA EL BLOQUE DEL PROFESOR IA (Copia y pega esto al final de tu index) -->
+<!-- ========================================================================= -->
+
+<style>
+    /* 1. BOTÓN/ICONO FLOTANTE (Cuando el chat está cerrado) */
+    #chat-launcher {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: #ff9900;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        z-index: 999999; /* Se asegura de estar sobre el juego */
+        transition: transform 0.2s ease;
+    }
+    #chat-launcher:hover {
+        transform: scale(1.1);
+    }
+
+    /* 2. CONTENEDOR DEL CHAT (Oculto por defecto: display: none) */
+    #chat-container {
+        position: fixed;
+        bottom: 90px; /* Se posiciona justo encima del icono */
+        right: 20px;
+        width: 330px;
+        height: 450px;
+        background: #ffffff;
+        border: 2px solid #222;
+        border-radius: 12px;
+        display: none; /* JS cambiará esto a 'flex' */
+        flex-direction: column;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+        z-index: 999999; /* Misma capa alta para que no lo tape el juego */
+        overflow: hidden;
+    }
+
+    /* 3. ENCABEZADO DEL CHAT (Con botón de cerrar) */
+    #chat-header {
+        background: #222;
+        color: #fff;
+        padding: 12px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #chat-close-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    #chat-close-btn:hover {
+        color: #ff9900;
+    }
+
+    /* 4. ÁREA DE MENSAJES Y ENTRADA */
+    #chat-messages {
+        flex: 1;
+        padding: 12px;
+        overflow-y: auto;
+        font-size: 14px;
+        background: #fdfdfd;
+        display: flex;
+        flex-direction: column;
+    }
+    #chat-input-area {
+        display: flex;
+        border-top: 1px solid #ddd;
+        background: #fff;
+    }
+    #chat-input {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        outline: none;
+        font-size: 14px;
+    }
+    #chat-btn {
+        background: #ff9900;
+        border: none;
+        color: white;
+        padding: 0 15px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    #chat-btn:hover {
+        background: #e68a00;
+    }
+
+    /* BURBUJAS DE TEXTO */
+    .msg {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        max-width: 85%;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+    .alumno {
+        background: #d1e7dd;
+        color: #0f5132;
+        align-self: flex-end;
+    }
+    .profesor {
+        background: #f1f1f1;
+        color: #212529;
+        align-self: flex-start;
+    }
+</style>
+
+<!-- ICONO FLOTANTE DE ACCESO -->
+<div id="chat-launcher" onclick="toggleChat()">👨‍🏫</div>
+
+<!-- VENTANA DEL CHAT -->
+<div id="chat-container">
+    <div id="chat-header">
+        <span>👨‍🏫 Profesor IA (Pistas)</span>
+        <button id="chat-close-btn" onclick="toggleChat()">✕</button>
     </div>
+    <div id="chat-messages">
+        <div class="msg profesor">¡Hola! Soy tu profesor guía. Si te quedas atascado con algún acertijo del juego, pídeme una pista aquí. ¡No te daré la solución directa pero te ayudaré a pensar!</div>
+    </div>
+    <div id="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Pregúntale al profesor...">
+        <button id="chat-btn" onclick="preguntarAlProfesor()">Enviar</button>
+    </div>
+</div>
 
-    <!-- 1. IMPORTAMOS LA LIBRERÍA GRATUITA DE PUTER -->
-    <script src="https://js.puter.com/v2/"></script>
+<!-- LIBRERÍA DE PUTER.JS -->
+<script src="https://js.puter.com/v2/"></script>
 
-    <!-- 2. CONTROLADOR DE LA IA -->
-    <script>
-        // Aquí guardamos el historial para que la IA tenga memoria del chat
-        let historialChat = [
-            {
-                role: 'system',
-                content: 'Actúas como el Profesor de un escape room educativo. Tu objetivo es guiar a los alumnos sin darles JAMÁS la respuesta final. Si te piden la respuesta, niégate amablemente y hazles una pregunta guía o dales una pista sutil. Mantén un tono motivador.'
-            }
-        ];
+<script>
+    // Configuración del comportamiento del Profesor IA
+    let historialChat = [
+        {
+            role: 'system',
+            content: 'Actúas como el Profesor de un escape room educativo. Tu objetivo es guiar a los alumnos sin darles JAMÁS la respuesta final. Si te piden la respuesta o el código, niégate con amabilidad y hazles una pregunta guía o dales una pista sutil sobre el acertijo de la página web. Mantén un tono motivador.'
+        }
+    ];
 
-        async function preguntarAlProfesor() {
-            const inputElement = document.getElementById('chat-input');
-            const mensajeAlumno = inputElement.value.trim();
-            if (!mensajeAlumno) return;
+    // FUNCIÓN PARA ABRIR / CERRAR EL CHAT
+    function toggleChat() {
+        const chatWindow = document.getElementById('chat-container');
+        if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {
+            chatWindow.style.display = 'flex';
+        } else {
+            chatWindow.style.display = 'none';
+        }
+    }
 
-            const boxMensajes = document.getElementById('chat-messages');
+    // LÓGICA DE PROCESAMIENTO DE IA
+    async function preguntarAlProfesor() {
+        const inputElement = document.getElementById('chat-input');
+        const mensajeAlumno = inputElement.value.trim();
+        if (!mensajeAlumno) return;
 
-            // 1. Mostrar mensaje del alumno en la pantalla
-            boxMensajes.innerHTML += `<div class="msg alumno">${mensajeAlumno}</div>`;
-            inputElement.value = '';
-            boxMensajes.scrollTop = boxMensajes.scrollHeight;
+        const boxMensajes = document.getElementById('chat-messages');
 
-            // 2. Guardar en el historial
-            historialChat.push({ role: 'user', content: mensajeAlumno });
+        // Renderizar mensaje del alumno
+        boxMensajes.innerHTML += `<div class="msg alumno">${mensajeAlumno}</div>`;
+        inputElement.value = '';
+        boxMensajes.scrollTop = boxMensajes.scrollHeight;
 
-            // 3. Mostrar un texto de "Pensando..."
-            boxMensajes.innerHTML += `<div class="msg profesor" id="typing">Escribiendo...</div>`;
+        historialChat.push({ role: 'user', content: mensajeAlumno });
 
-            try {
-                // 4. LLAMADA DIRECTA Y GRATUITA A LA IA DE PUTER
-                // Nota: Puter usa por defecto modelos muy capaces como Mixtral o Claude/GPT equivalentes en sus créditos libres
-                const respuestaIA = await puter.ai.chat(historialChat);
+        // Animación temporal de "Escribiendo..."
+        boxMensajes.innerHTML += `<div class="msg profesor" id="typing">Escribiendo...</div>`;
+        boxMensajes.scrollTop = boxMensajes.scrollHeight;
 
-                // Quitar el "Escribiendo..." y poner la respuesta real
-                document.getElementById('typing').remove();
-                boxMensajes.innerHTML += `<div class="msg profesor">${respuestaIA}</div>`;
-                
-                // Guardar la respuesta de la IA en el historial para que recuerde el hilo
-                historialChat.push({ role: 'assistant', content: respuestaIA });
+        try {
+            // Consulta directa a Puter
+            const respuestaIA = await puter.ai.chat(historialChat);
 
-            } catch (error) {
-                document.getElementById('typing').remove();
-                boxMensajes.innerHTML += `<div class="msg profesor">Vaya, mi cerebro se desconectó un segundo. Inténtalo de nuevo.</div>`;
-            }
-
-            boxMensajes.scrollTop = boxMensajes.scrollHeight;
+            document.getElementById('typing').remove();
+            boxMensajes.innerHTML += `<div class="msg profesor">${respuestaIA}</div>`;
+            
+            historialChat.push({ role: 'assistant', content: respuestaIA });
+        } catch (error) {
+            document.getElementById('typing').remove();
+            boxMensajes.innerHTML += `<div class="msg profesor">Vaya, mi cerebro se desconectó un segundo. Vuelve a preguntarme.</div>`;
         }
 
-        // Permitir enviar con la tecla Enter
-        document.getElementById('chat-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') preguntarAlProfesor();
-        });
-		</script>
+        boxMensajes.scrollTop = boxMensajes.scrollHeight;
+    }
+
+    // Escuchar la tecla Enter para enviar rápido
+    document.getElementById('chat-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') preguntarAlProfesor();
+    });
+</script>
+
+<!-- ========================================================================= -->
+<!-- TERMINA EL BLOQUE DEL PROFESOR IA                                         -->
+<!-- ========================================================================= -->
+	
 	<span class="font-bold text-xs text-egyptian-gold"> © 2026 Marina Strack </span>
 </body>
 </html>
