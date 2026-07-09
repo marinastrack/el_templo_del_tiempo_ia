@@ -1,4 +1,4 @@
-const fetch = require("node-fetch"); // O usa el fetch nativo si usas Node.js 18+
+
 
 exports.handler = async function (event, context) {
   // Configurar cabeceras CORS para evitar bloqueos de seguridad
