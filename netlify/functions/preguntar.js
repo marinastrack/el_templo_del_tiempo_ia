@@ -19,7 +19,7 @@ export default async (request, context) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.1-8b-instruct:free", // Mismo modelo gratuito que usabas
+        "model": "meta-llama/llama-3-8b-instruct:free", // Mismo modelo gratuito que usabas
         "messages": historialChat
       })
     });
