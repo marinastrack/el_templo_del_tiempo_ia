@@ -34,7 +34,7 @@ exports.handler = async function (event, context) {
         "HTTP-Referer": "https://tu-sitio-escape.netlify.app", // Opcional para OpenRouter
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.1-8b-instruct:free", // Cambiado a 3.1 para evitar saturación
+       model: "google/gemma-2-9b-it:free",
         messages: historialChat,
         temperature: 0.7,
       }),
