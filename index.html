@@ -1005,11 +1005,16 @@
             // Guardar en el historial para mantener el hilo de la conversación
             historialChat.push({ role: 'assistant', content: respuestaIA });
 
-        } catch (error) {
-            console.error(error);
-            if (document.getElementById('typing')) document.getElementById('typing').remove();
-            boxMensajes.innerHTML += `<div class="msg profesor">Vaya, parece que tengo un problema con mis notas en el servidor. ¿Me repites la pregunta?</div>`;
-        }
+        // Dentro del bloque catch de tu función de Netlify
+catch (error) {
+  console.error("Error detallado:", error);
+  return {
+    statusCode: 500,
+    body: JSON.stringify({ 
+      respuesta: "La conexión con el Profesor se ha pixelado... ¡Intenta enviarle el mensaje de nuevo!" 
+    })
+  };
+}
 
         boxMensajes.scrollTop = boxMensajes.scrollHeight;
     }
